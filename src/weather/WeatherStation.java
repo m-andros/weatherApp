@@ -6,7 +6,6 @@
 package weather;
 
 import java.util.*;
-import javax.swing.JLabel;
 import weather.ConverterMap.MeasureUnits; 
 
 /**
@@ -36,30 +35,17 @@ public class WeatherStation extends Observable implements Runnable{
      * @return the finalized  temperature of the given enum, celsius or kelvin
      */
     private double convertFunction(double reading, Values value){
-    return (reading + value.getConversionConstant()) * value.getDivisor();
+        return (reading + value.getConversionConstant()) * value.getDivisor() + value.getReductionConstant();
     }
     
-    public void convertSwing(ArrayList<JLabel> arr){
-         
-        double val; 
-        Values v;
-        for(Map.Entry<MeasureUnits, Values> entry:map.entrySet()){  
-            v = entry.getValue(); 
-            switch(entry.getKey()){
-                case CELZIUS: 
-                    arr.get(0).setText(Double.toString(convertFunction(currentReadingTemp*1.0, v)));
-                    break;
-                case KELVIN: 
-                    arr.get(1).setText(Double.toString(convertFunction(currentReadingTemp*1.0, v)));
-                    break;
-                case MERCURYINCH: 
-                    arr.get(2).setText(Double.toString(convertFunction(currentReadingBar, v)));
-                    break;
-                case MBAR: 
-                    arr.get(3).setText(Double.toString(convertFunction(currentReadingBar, v)));
-                    break;
-            }   
-         }  
+    public double getTempValue(MeasureUnits unit){
+        Values v = map.get(unit);
+        return convertFunction(currentReadingTemp*1.0, v);
+    }
+    
+    public double getPressureValue(MeasureUnits unit){
+        Values v = map.get(unit);
+        return convertFunction(currentReadingBar*1.0, v);
     }
      
     @Override

@@ -2,6 +2,7 @@ package weather;
 
 import java.util.Observable;
 import java.util.Observer;
+import weather.ConverterMap.MeasureUnits;
 
 /**
  * TextUI class is used as a default GUI which is textually based and which prints
@@ -35,6 +36,9 @@ public class TextUI implements Observer{
         if(o != station){
             return;
         }  
+        System.out.printf("Celsius is: %.2f %n Kelvin is: %.2f %n Fahrenheit is: %.2f %n Inches is: %.2f %n mBar is: %.2f %n", 
+                station.getTempValue(MeasureUnits.CELZIUS), station.getTempValue(MeasureUnits.KELVIN), station.getTempValue(MeasureUnits.FAHRENHEIT),
+                station.getPressureValue(MeasureUnits.MERCURYINCH), station.getPressureValue(MeasureUnits.MBAR));
     }
     
 }

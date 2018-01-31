@@ -12,18 +12,21 @@ package weather;
 import java.awt.Font;
 import java.awt.GridLayout; 
 import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import weather.ConverterMap.MeasureUnits; 
 
 //import java.text.DecimalFormat ;
 
 public class SwingUI extends JFrame implements Observer{
     private final WeatherStation station; // constant for the WeatherStation object  
-    private ArrayList<JLabel> labelListing; // ArrayList that holds reference to all the JLabel objects
-    JLabel newLabel; //Label object that is going to be added in to the ArrayList
+    private ArrayList<JLabel> labelListing = new ArrayList<>(); // ArrayList that holds reference to all the JLabel objects
+    EnumMap<MeasureUnits, Values> map;
 
     // A Font object contains information on the font to be used to render text.
     private static final Font LABELFONT =
@@ -41,7 +44,7 @@ public class SwingUI extends JFrame implements Observer{
         this.SetupDisplay(this); // All the GUI creation separeted to eliminate warning of calling this in the Overridable methods 
         this.station = station;
         this.station.addObserver(this);
-        labelListing = new ArrayList<JLabel>();
+        map = (new ConverterMap()).getMap();
     }
     
     /**
@@ -61,7 +64,8 @@ public class SwingUI extends JFrame implements Observer{
         */
         this.PanelCreation(" Kelvin ", frame); 
         this.PanelCreation(" Celsius ", frame);
-        this.PanelCreation(" Mercury ", frame);
+        this.PanelCreation(" Fahrenheit ", frame);
+        this.PanelCreation(" Inches ", frame);
         this.PanelCreation(" mBar ", frame);
         /*
         * Set up the frame's default close operation pack its elements,
@@ -102,9 +106,36 @@ public class SwingUI extends JFrame implements Observer{
         JPanel panel = new JPanel(new GridLayout(2,1)) ;
         frame.add(panel) ;
         createLabel(name, panel) ;
-        newLabel = createLabel("", panel);
+        JLabel newLabel = createLabel("", panel);
         labelListing.add(newLabel);
     } 
+    
+    
+    
+    public void updateSwing(ArrayList<JLabel> arr){
+          
+        Values v;
+        for(Map.Entry<MeasureUnits, Values> entry:map.entrySet()){  
+            v = entry.getValue(); 
+            switch(entry.getKey()){
+                case CELZIUS: 
+                    arr.get(0).setText(String.format("%.2f", station.getTempValue(MeasureUnits.CELZIUS)));
+                    break;
+                case KELVIN: 
+                    arr.get(1).setText(String.format("%.2f", station.getTempValue(MeasureUnits.KELVIN)));
+                    break;
+                case FAHRENHEIT: 
+                    arr.get(2).setText(String.format("%.2f", station.getTempValue(MeasureUnits.FAHRENHEIT)));
+                    break;
+                case MERCURYINCH: 
+                    arr.get(3).setText(String.format("%.2f", station.getPressureValue(MeasureUnits.MERCURYINCH)));
+                    break;
+                case MBAR: 
+                    arr.get(4).setText(String.format("%.2f", station.getPressureValue(MeasureUnits.MBAR)));
+                    break;
+            }   
+         }  
+    }
     
     /**
      * update is a overridden method from the Observer interface and is used to update
@@ -118,7 +149,7 @@ public class SwingUI extends JFrame implements Observer{
         if(o != station){
             return;
         }
-         
+        this.updateSwing(labelListing);
         /*
             Setting the values of Kelvin and Celsius degrees calculations to their appropriate holders
         */ 
